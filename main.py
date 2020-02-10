@@ -1,43 +1,61 @@
 import logging
-from random import randint
-from time import time
 
+from aiortc import RTCSessionDescription, RTCPeerConnection
+from aiortc.contrib.media import MediaBlackhole
 from starlette.applications import Starlette
-from starlette.endpoints import WebSocketEndpoint
 from starlette.responses import JSONResponse
-from starlette.routing import Route, Mount, WebSocketRoute
+from starlette.routing import Route, Mount
 from starlette.staticfiles import StaticFiles
-from starlette.websockets import WebSocket
 
 logger = logging.getLogger()
-
 
 middleware = [
     # TODO: session per index load
 ]
 
+peer_connections = set()
+
+
 async def homepage(request):
     return JSONResponse({"hello": "world"})
 
 
-class Echo(WebSocketEndpoint):
-    async def on_connect(self, websocket: WebSocket):
-        await websocket.accept()
-        await websocket.send_text("Hello, websocket!")
+async def rtc_session(request):
+    params = await request.json()
 
-    async def on_receive(self, websocket: WebSocket, data):
-        logger.info(f"data received: {len(data)}")
+    offer = RTCSessionDescription(
+        sdp=params["sdp"],
+        type=params["type"]
+    )
 
-        if isinstance(data, str):
-            return
+    peer_connection = RTCPeerConnection()
 
-        with open(f"media/segment-{time()}", "wb") as out_file:
-            out_file.write(data)
+    recorder = MediaBlackhole()
+
+    @peer_connection.on("track")
+    def on_track(track):
+        @track.on("ended")
+        async def on_ended():
+            await recorder.stop()
+
+    peer_connections.add(peer_connection)
+
+    await peer_connection.setRemoteDescription(offer)
+    await recorder.start()
+
+    answer = await peer_connection.createAnswer()
+
+    await peer_connection.setLocalDescription(answer)
+
+    return JSONResponse({
+        "sdp": peer_connection.localDescription.sdp,
+        "type": peer_connection.localDescription.type
+    })
 
 
 routes = [
     Route("/home", endpoint=homepage),
-    WebSocketRoute("/ws", Echo),
+    Route("/rtc", endpoint=rtc_session, methods=["POST"]),
     Mount("/", app=StaticFiles(directory="static", html=True), name="static"),
 ]
 

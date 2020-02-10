@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="utf-8">
-    <script data-require="jquery@*" data-semver="3.1.1" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script data-require="jquery@*" data-semver="3.1.1"
+            src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="./main.js"></script>
     <style>
         video {
@@ -28,12 +29,15 @@
 </head>
 
 <body>
-    <div id="container" style="width:100%">
-        <div id="inner">
-            <video class="sepia" autoplay style="border-radius:300px"></video>
-            <button id="stop">Stop</button>
-        </div>
+<div id="container" style="width:100%">
+    <div id="inner">
+        <video id="video"
+               autoplay
+               style="border-radius:300px">
+        </video>
+        <button id="stop">Stop</button>
     </div>
+</div>
 </body>
 
 </html>
