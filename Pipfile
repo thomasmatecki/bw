@@ -1,0 +1,20 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+python-language-server = "*"
+autoflake = "*"
+
+[packages]
+starlette = "*"
+uvicorn = "*"
+aiofiles = "*"
+jupyter = "*"
+ffmpeg = "*"
+ffmpeg-python = "*"
+itsdangerous = "*"
+
+[requires]
+python_version = "3.7"
