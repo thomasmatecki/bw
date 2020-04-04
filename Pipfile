@@ -16,6 +16,7 @@ ffmpeg = "*"
 ffmpeg-python = "*"
 itsdangerous = "*"
 aiortc = "*"
+numpy = "*"
 
 [requires]
 python_version = "3.7"

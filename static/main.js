@@ -10,10 +10,14 @@ $(function () {
 
     const peerConnection = new RTCPeerConnection(config);
 
+    peerConnection.ontrack = function (event) {
+        console.log("Track Added");
+    };
+
     const constraints = {
         audio: false,
         video: {
-            facingMode: ["user", "environment"]
+            facingMode: ["user", "environment"],
         }
     };
 
@@ -54,25 +58,26 @@ $(function () {
         }).then(function (answer) {
             return peerConnection.setRemoteDescription(answer);
         }).catch(function (e) {
-            alert(e);
+            console.log(e);
         });
     }
 
     navigator.mediaDevices.getUserMedia(constraints).then(
         mediaStream => {
 
+
             let vidEl = $('video');
 
             vidEl[0].srcObject = mediaStream;
 
             mediaStream.getTracks().forEach(track => {
+                console.log("adding track: " + track);
                 peerConnection.addTrack(track, mediaStream);
             });
 
-            return negotiate();
+            negotiate();
         },
         error => {
             alert('Could not acquire media: ' + error);
         }); //.catch( error => {})
-})
-;
+});
